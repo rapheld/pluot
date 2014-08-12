@@ -1,0 +1,54 @@
+require 'faraday'
+require 'faraday_middleware'
+require 'pluot/oauth'
+require 'pluot/proxy'
+
+module Pluot
+  class Client
+    include Pluot::Proxy
+
+    API_ENDPOINT  = 'https://api.wildapricot.org'
+    API_NAMESPACE = '/v2'
+
+
+    attr_reader :api_key, :account_id, :config
+
+    def initialize(api_key, account_id, config = {})
+      @api_key    = api_key
+      @account_id = account_id
+      @config    = config
+    end
+
+    def self.with_global_credentials(config = {})
+      self.new(Pluot.api_key, Pluot.account_id, config)
+    end
+
+    def get(path)
+      connection.get("#{API_NAMESPACE}#{path}").body
+    end
+
+    def base
+      get('')
+    end
+
+    private
+
+    def connection
+      Faraday.new(:url => API_ENDPOINT) do |connection|
+        connection.request :url_encoded
+        connection.headers['Authorization'] = token_header
+        connection.response :pluot_parse_json
+        connection.adapter :net_http
+      end
+    end
+
+    def token_header
+      "Bearer #{auth_token}"
+    end
+
+    def auth_token
+      @token ||= Oauth.new(api_key, config).token
+    end
+
+  end
+end
