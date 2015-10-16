@@ -10,9 +10,7 @@ module Pluot
       :contacts,
       :finances,
       :events,
-      :event_registration,
-      :account,
-      :membership_level
+      :account
     ].join(' ')
 
     attr_reader :api_key, :auth_scope
