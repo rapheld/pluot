@@ -10,7 +10,6 @@ module Pluot
     API_ENDPOINT  = 'https://api.wildapricot.org'
     API_NAMESPACE = '/v2'
 
-
     attr_reader :api_key, :account_id, :config
 
     def initialize(api_key, account_id, config = {})
