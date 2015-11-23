@@ -46,7 +46,12 @@ module Pluot
     end
 
     def auth_token
-      @token ||= Oauth.new(api_key, config).token
+      if @token.nil? or Time.now > (@tokentime + 6000)
+        @tokentime = Time.now
+        @token = Oauth.new(api_key, config).token
+      else
+        @token
+      end
     end
 
   end
