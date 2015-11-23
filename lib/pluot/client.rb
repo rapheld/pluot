@@ -46,7 +46,9 @@ module Pluot
     end
 
     def auth_token
-      if @token.nil? or Time.now > (@tokentime + 6000)
+      # wild apricot typically gives us an 1800 second token, let's only keep
+      # ours for ten minutes
+      if @token.nil? or Time.now > (@tokentime + 600)
         @tokentime = Time.now
         @token = Oauth.new(api_key, config).token
       else
