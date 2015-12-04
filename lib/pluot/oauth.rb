@@ -5,12 +5,18 @@ require 'base64'
 module Pluot
   class Oauth
 
+    class InvalidAuthorization < StandardError
+    end
+    
     ENDPOINT   = 'https://oauth.wildapricot.org/auth/token'
+
+    # by default we will fetch read-only credentials. for RW,
+    # the client must update their config[:auth_type]
     AUTH_SCOPE = [
-      :contacts,
-      :finances,
-      :events,
-      :account
+      :contacts_view,
+      :finances_view,
+      :events_view,
+      :account_view
     ].join(' ')
 
     attr_reader :api_key, :auth_scope
@@ -21,7 +27,14 @@ module Pluot
     end
 
     def token
-      connection.post(ENDPOINT, params).body[:access_token]
+      res = connection.post(ENDPOINT, params)
+      token = res.body[:access_token]
+
+      if token.blank?
+        raise InvalidAuthorization
+      end
+
+      token
     end
 
     private

@@ -10,7 +10,6 @@ module Pluot
     API_ENDPOINT  = 'https://api.wildapricot.org'
     API_NAMESPACE = '/v2'
 
-
     attr_reader :api_key, :account_id, :config
 
     def initialize(api_key, account_id, config = {})
@@ -47,7 +46,14 @@ module Pluot
     end
 
     def auth_token
-      @token ||= Oauth.new(api_key, config).token
+      # wild apricot typically gives us an 1800 second token, let's only keep
+      # ours for ten minutes
+      if @token.nil? or Time.now > (@tokentime + 600)
+        @tokentime = Time.now
+        @token = Oauth.new(api_key, config).token
+      else
+        @token
+      end
     end
 
   end
